@@ -1,5 +1,3 @@
-`use strict`;
-
 const images = [
   {
     preview:
@@ -65,3 +63,65 @@ const images = [
     description: "Lighthouse Coast Sea",
   },
 ];
+
+const gallery = document.querySelector(".gallery");
+
+function imagesTemplate(item) {
+  return `<li class="gallery-item">
+			<a class="gallery-link" href=${item.original}>
+				<img
+					class="gallery-image"
+					src=${item.preview}
+					data-source=${item.original}
+					alt="${item.description}"
+				/>
+			</a>
+		</li>`;
+}
+
+function imagesListTemplate(images) {
+  return images.map(imagesTemplate).join('');
+}
+
+function render() {
+  const markup = imagesListTemplate(images);
+  gallery.innerHTML = markup;
+}
+
+render();
+  
+gallery.addEventListener("click", openModalImg);
+
+function openModalImg(e) {
+  e.preventDefault();
+  
+  if (e.target === e.currentTarget) return;
+
+  const aElem = e.target.closest("a");
+  if (!aElem) return;
+
+  const galleryLink = aElem.getAttribute("href");
+
+  const instance = basicLightbox.create(
+    `
+    <div class="modal">
+      <img src="${galleryLink}" width="1112" height="640">
+    </div>
+    `,
+    {
+      onShow: (instance) => {
+        document.addEventListener("keydown", closeModal);
+      },
+
+      onClose: (instance) => {
+        document.removeEventListener("keydown", closeModal);
+      },
+    }
+  );
+
+  function closeModal(e) {
+    if (e.code === "Escape") instance.close();
+  }
+
+  instance.show();
+};
